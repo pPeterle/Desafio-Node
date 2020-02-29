@@ -4,7 +4,7 @@ import truncate from '../util/truncate';
 
 import factory from '../util/factories';
 
-describe('Recipient test', () => {
+describe('Deliveryman test', () => {
   let token;
 
   beforeAll(async () => {
@@ -22,109 +22,109 @@ describe('Recipient test', () => {
     token = res.body.token;
   });
 
-  it('should return a list of recipients', async () => {
+  it('should return a list of deliverymans', async () => {
     const result = await request(app)
-      .get('/recipients')
+      .get('/deliveryman')
       .set('Authorization', `Bearer ${token}`);
 
     expect(result.status).toBe(200);
     expect(result.body.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('should not store recipient without all fields', async () => {
-    const recipient = await factory.attrs('Recipient', {
-      street: null,
+  it('should not store deliveryman without all fields', async () => {
+    const deliveryman = await factory.attrs('Deliveryman', {
+      name: null,
     });
 
     const result = await request(app)
-      .post('/recipients')
-      .send(recipient)
+      .post('/deliveryman')
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
     expect(result.status).toBe(400);
   });
 
-  it('should store recipient', async () => {
-    const recipient = await factory.attrs('Recipient');
+  it('should store deliveryman', async () => {
+    const deliveryman = await factory.attrs('Deliveryman');
 
     const result = await request(app)
-      .post('/recipients')
-      .send(recipient)
+      .post('/deliveryman')
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
     expect(result.status).toBe(201);
-    expect(result.body.name).toEqual(recipient.name);
+    expect(result.body.name).toEqual(deliveryman.name);
     expect(result.body).toHaveProperty('id');
   });
 
-  it('should update recipient', async () => {
-    const recipient = await factory.attrs('Recipient');
-    const result = await request(app)
-      .post('/recipients')
-      .send(recipient)
+  it('should update deliveryman', async () => {
+    const deliveryman = await factory.attrs('Deliveryman');
+    let result = await request(app)
+      .post('/deliveryman')
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
-    recipient.name = 'new name';
+    deliveryman.name = 'new name';
+    const { id } = result.body;
 
-    const res = await request(app)
-      .put(`/recipients/${result.body.id}`)
-      .send(recipient)
+    result = await request(app)
+      .put(`/deliveryman/${id}`)
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
-    expect(res.status).toBe(201);
-    expect(res.body.name).toEqual(recipient.name);
-    expect(res.body).toHaveProperty('id');
-  });
-
-  it('should not update recipient with invalid id', async () => {
-    const recipient = await factory.attrs('Recipient');
-
-    const res = await request(app)
-      .put(`/recipients/2132132454`)
-      .send(recipient)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(res.status).toBe(400);
+    expect(result.body.name).toEqual(deliveryman.name);
+    expect(result.body).toHaveProperty('id');
   });
 
   it('should not update deliveryman id', async () => {
-    const recipient = await factory.attrs('Recipient');
+    const deliveryman = await factory.attrs('Deliveryman');
     let result = await request(app)
-      .post('/recipients')
-      .send(recipient)
+      .post('/deliveryman')
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
-    recipient.name = 'new name';
+    deliveryman.name = 'new name';
     const { id } = result.body;
     result.body.id = id + 1;
 
     result = await request(app)
-      .put(`/recipients/${id}`)
+      .put(`/deliveryman/${id}`)
       .send(result.body)
       .set('Authorization', `Bearer ${token}`);
 
     expect(result.body.id).toEqual(id);
   });
 
+  it('should not update deliveryman with invalid id', async () => {
+    const deliveryman = await factory.attrs('Deliveryman');
+
+    const res = await request(app)
+      .put(`/deliveryman/2132132454`)
+      .send(deliveryman)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(400);
+  });
+
   it('should not delete recipient with invalid id', async () => {
     const res = await request(app)
-      .delete(`/recipients/2132132454`)
+      .delete(`/deliveryman/2132132454`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(400);
   });
 
   it('should delete a recipient', async () => {
-    const recipient = await factory.attrs('Recipient');
+    const deliveryman = await factory.attrs('Deliveryman');
     let res = await request(app)
-      .post(`/recipients`)
-      .send(recipient)
+      .post(`/deliveryman`)
+      .send(deliveryman)
       .set('Authorization', `Bearer ${token}`);
 
     const { id } = res.body;
 
     res = await request(app)
-      .delete(`/recipients/${id}`)
+      .delete(`/deliveryman/${id}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);

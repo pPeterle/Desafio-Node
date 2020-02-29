@@ -1,9 +1,39 @@
 import * as Yup from 'yup';
 import { isBefore, parseISO } from 'date-fns';
+import { Op } from 'sequelize';
 import Delivery from '../models/Delivery';
 import File from '../models/File';
 
 class DeliverymanActionsController {
+  async show(req, res) {
+    const { id } = req.params;
+
+    const deliveries = await Delivery.findAll({
+      where: {
+        deliveryman_id: id,
+        end_date: null,
+        canceled_at: null,
+      },
+    });
+
+    return res.json(deliveries);
+  }
+
+  async index(req, res) {
+    const { id } = req.params;
+
+    const deliveries = await Delivery.findAll({
+      where: {
+        deliveryman_id: id,
+        end_date: {
+          [Op.ne]: null,
+        },
+      },
+    });
+
+    return res.json(deliveries);
+  }
+
   async update1(req, res) {
     const schema = Yup.object().shape({
       start_date: Yup.string().required(),
@@ -26,9 +56,11 @@ class DeliverymanActionsController {
         deliveryman_id: delivery.deliveryman_id,
       },
     });
-    if (deliveries.length < 5)
+    if (deliveries.length < 5) {
       await Delivery.update({ start_date }, { where: { id } });
-    else return res.stauts(400).json({ error: 'Deliveryman can only takes 5' });
+    } else {
+      return res.stauts(400).json({ error: 'Deliveryman can only takes 5' });
+    }
 
     const deliveryUpdated = await Delivery.findByPk(id);
     return res.json(deliveryUpdated);
@@ -53,20 +85,6 @@ class DeliverymanActionsController {
     });
 
     return res.json(deliveryUpdated);
-  }
-
-  async show(req, res) {
-    const { id } = req.params;
-
-    const deliveries = await Delivery.findAll({
-      where: {
-        deliveryman_id: id,
-        end_date: null,
-        canceled_at: null,
-      },
-    });
-
-    return res.json(deliveries);
   }
 }
 

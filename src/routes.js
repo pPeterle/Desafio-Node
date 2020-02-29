@@ -34,12 +34,17 @@ routes.put('/deliveryman/:id', DeliverymanController.update);
 routes.delete('/deliveryman/:id', DeliverymanController.delete);
 
 routes.get('/deliveryman/:id/deliveries', DeliverymanActionsController.show);
+routes.get(
+  '/deliveryman/:id/deliveries-finished',
+  DeliverymanActionsController.index
+);
 routes.put('/deliveryman/:id/retirar', DeliverymanActionsController.update1);
 routes.put('/deliveryman/:id/entregar', DeliverymanActionsController.update2);
 
 routes.post('/delivery', DeliveryController.store);
 routes.get('/delivery', DeliveryController.index);
 routes.delete('/delivery/:id', DeliveryController.delete);
+routes.put('/delivery/:id', DeliveryController.update);
 
 routes.post('/delivery/:id/problems', DeliveryProblemController.store);
 routes.get('/delivery/:id/problems', DeliveryProblemController.index);

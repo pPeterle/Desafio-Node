@@ -26,7 +26,7 @@ class DeliverymanController {
 
     const deliveryman = await Deliveryman.create(req.body);
 
-    return res.json(deliveryman);
+    return res.status(201).json(deliveryman);
   }
 
   async update(req, res) {

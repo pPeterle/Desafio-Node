@@ -31,24 +31,11 @@ class DeliveryController {
     delete req.body.id;
     const delivery = await Delivery.create(req.body);
 
-    return res.json(delivery);
-  }
-
-  async delete(req, res) {
-    const { id } = req.params;
-
-    const idExists = Delivery.findByPk(id);
-
-    if (!idExists) return res.status(400).json({ error: 'id does not exists' });
-
-    await Delivery.destroy({ where: { id } });
-
-    return res.json({ message: 'Delivery deleted' });
+    return res.status(201).json(delivery);
   }
 
   async update(req, res) {
     const schema = Yup.object().shape({
-      end_date: Yup.string(),
       product: Yup.string(),
       recipient_id: Yup.number(),
       deliveryman_id: Yup.number(),
@@ -59,22 +46,32 @@ class DeliveryController {
     }
 
     const { id } = req.params;
-    const { end_date } = req.body;
 
-    const atualDate = parseISO(end_date);
+    const idExists = await Delivery.findByPk(id);
+    if (!idExists) return res.status(400).json({ error: 'id does not exists' });
 
-    const eightHour = new Date().setHours(8);
-    const eightteenHour = new Date().setHours(18);
-
-    if (isBefore(atualDate, eightHour) || isAfter(atualDate, eightteenHour)) {
+    delete req.body.id;
+    const { startDate, endDate } = req.body;
+    if (startDate || endDate)
       return res
         .status(400)
-        .json({ error: 'Retirada so podem ser feitas entre as 8 e 18 hrs' });
-    }
+        .json({ error: 'You cannot update the delivery status in this path' });
 
     await Delivery.update(req.body, { where: { id } });
-    const deliveryUpdated = await Delivery.findByPk();
+    const deliveryUpdated = await Delivery.findByPk(id);
     return res.json(deliveryUpdated);
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const idExists = await Delivery.findByPk(id);
+
+    if (!idExists) return res.status(400).json({ error: 'id does not exists' });
+
+    await Delivery.destroy({ where: { id } });
+
+    return res.json({ message: 'Delivery deleted' });
   }
 }
 
